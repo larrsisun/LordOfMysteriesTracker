@@ -12,7 +12,7 @@ public class StartCommand implements Command
         String welcomeMessage = """
                 Привет, я бот, который может присылать новые посты из сабреддита r/LordOfTheMysteries!
                 
-                *доступные команды*:\n 
+                *Доступные команды*:\n 
                 /subscribe - подписаться на рассылку;\n
                 \n/unsubscribe - отписаться от рассылки;\n
                 \n/help - помощь по командам;\n

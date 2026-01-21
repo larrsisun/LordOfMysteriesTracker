@@ -1,6 +1,8 @@
 package TelegramBot.LordOfMysteriesTracker.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -10,20 +12,28 @@ import java.util.Set;
 @Table(name = "Subscription")
 public class Subscription {
 
+    @Setter
+    @Getter
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
+    @Getter
     @Column(name = "chat_ID", nullable = false, unique = true)
     private Long chatID;
 
+    @Setter
+    @Getter
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Setter
+    @Getter
     @ElementCollection
     @CollectionTable(
             name = "subscription_filters",
@@ -90,22 +100,6 @@ public class Subscription {
         }
     }
 
-    public Set<FilterType> getFilters() {
-        return filters;
-    }
-
-    public void setFilters(Set<FilterType> filters) {
-        this.filters = filters;
-    }
-
-    public Long getChatID() {
-        return chatID;
-    }
-
-    public void setChatID(Long chatID) {
-        this.chatID = chatID;
-    }
-
     public Boolean getActive() {
         return isActive;
     }
@@ -114,19 +108,4 @@ public class Subscription {
         isActive = active;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

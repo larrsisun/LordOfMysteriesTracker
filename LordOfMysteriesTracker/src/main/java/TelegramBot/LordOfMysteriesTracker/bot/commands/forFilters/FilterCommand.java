@@ -36,24 +36,24 @@ public class FilterCommand implements Command {
         Set<String> filters = subscriptionService.getFilters(chatID);
 
         StringBuilder message = new StringBuilder();
-        message.append("ваши текущие фильтры: ");
+        message.append("Ваши текущие фильтры: \n");
 
         if (filters.contains("all")) {
-            message.append("вы подписаны на все категории (без фильтра)");
+            message.append("Вы подписаны на все категории (без фильтра)\n");
         } else {
             for (String filtering : filters) {
                 FilterType filter = FilterType.fromType(filtering);
-                message.append("<3 ").append(filter.getDisplayName()).append("\n");
+                message.append("*-* ").append(filter.getDisplayName()).append("\n");
             }
         }
 
-        message.append("\n *доступные фильтры:* \n");
+        message.append("\n *Доступные фильтры:* \n");
         for (FilterType filterType : FilterType.values()) {
-            message.append("<3 ").append(filterType.getType()).append(" - ").append(filterType.getDisplayName())
+            message.append("*-* ").append(filterType.getType()).append(" - ").append(filterType.getDisplayName())
                     .append(";").append("\n");
         }
 
-        message.append("\n *примеры ввода:* \n");
+        message.append("\n *Примеры ввода:* \n");
         message.append("/filters fanart discussion - только арты и обсуждения\n");
         message.append("/filters all - всё (по умолчанию)");
 
@@ -74,12 +74,12 @@ public class FilterCommand implements Command {
 
             Set<String> newFilters = subscriptionService.getFilters(chatId);
             StringBuilder result = new StringBuilder();
-            result.append("*фильтры обновлены!*\n\n");
+            result.append("*Фильтры обновлены!*\n\n");
 
             if (newFilters.contains("all")) {
-                result.append("теперь вы будете получать все типы контента.\n");
+                result.append("Теперь вы будете получать все типы контента.\n");
             } else {
-                result.append("теперь вы будете получать:\n");
+                result.append("Теперь вы будете получать:\n");
                 for (String filterCode : newFilters) {
                     FilterType filter = FilterType.fromType(filterCode);
                     result.append("• ").append(filter.getDisplayName()).append("\n");

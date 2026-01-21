@@ -12,8 +12,12 @@ import java.util.*;
 @Transactional
 public class SubscriptionService {
 
+    private final SubscriptionRepository subscriptionRepository;
+
     @Autowired
-    private SubscriptionRepository subscriptionRepository;
+    public SubscriptionService(SubscriptionRepository subscriptionRepository) {
+        this.subscriptionRepository = subscriptionRepository;
+    }
 
     public Subscription subscribe(Long chatID) {
         Optional<Subscription> subscription = subscriptionRepository.findByChatID(chatID);

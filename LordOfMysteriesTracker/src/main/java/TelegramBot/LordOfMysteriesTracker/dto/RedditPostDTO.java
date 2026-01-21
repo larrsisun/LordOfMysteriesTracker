@@ -1,7 +1,6 @@
 package TelegramBot.LordOfMysteriesTracker.dto;
 
 import java.time.Instant;
-import java.util.Date;
 
 public class RedditPostDTO {
     private String id;

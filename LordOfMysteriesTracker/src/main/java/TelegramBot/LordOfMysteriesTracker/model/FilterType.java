@@ -1,5 +1,8 @@
 package TelegramBot.LordOfMysteriesTracker.model;
 
+import lombok.Getter;
+
+@Getter
 public enum FilterType {
     ALL("all", "все категории"), ART("art", "фанарты"),
     NOVEL_DISCUSSION("novel_discussion", "обсуждения новеллы"), MEMES("memes", "мемы"),
@@ -35,11 +38,4 @@ public enum FilterType {
         }
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getType() {
-        return type;
-    }
 }

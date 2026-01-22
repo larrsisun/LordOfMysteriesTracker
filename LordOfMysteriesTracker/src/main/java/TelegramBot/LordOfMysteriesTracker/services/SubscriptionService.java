@@ -62,11 +62,6 @@ public class SubscriptionService {
         return subscriptionRepository.save(subscription);
     }
 
-    public Subscription updateFilters(Long chatId, String filtersString) {
-        Set<String> codes = new HashSet<>(Arrays.asList(filtersString.split(",")));
-        return updateFilters(chatId, codes);
-    }
-
 
     public Optional<Subscription> getSubscription(Long chatId) {
         return subscriptionRepository.findByChatID(chatId);

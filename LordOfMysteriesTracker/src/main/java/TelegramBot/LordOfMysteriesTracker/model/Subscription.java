@@ -56,27 +56,6 @@ public class Subscription {
         this.filters.add(FilterType.ALL);
     }
 
-    public void addFilter(FilterType filterType) {
-        if (filterType != FilterType.ALL) {
-            this.filters.remove(FilterType.ALL);
-        }
-        this.filters.add(filterType);
-    }
-
-    // очищаем ВСЕ фильтры, которые есть у пользователя
-    public void clearFilters() {
-        this.filters.clear();
-        this.filters.add(FilterType.ALL);
-    }
-
-    // убираем только один из фильтров
-    public void removeFilter(FilterType filterType) {
-        this.filters.remove(filterType);
-        if (this.filters.isEmpty()) {
-            this.filters.add(FilterType.ALL);
-        }
-    }
-
     public Set<String> getFilterCodes() {
         Set<String> types = new HashSet<>();
         for (FilterType filterType : filters) {

@@ -1,6 +1,8 @@
 package TelegramBot.LordOfMysteriesTracker.services;
 
 import TelegramBot.LordOfMysteriesTracker.dto.RedditPostDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -9,22 +11,22 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
 public class NotificationService {
 
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
     private final TelegramLongPollingBot bot;
-    private final Set<String> sentPosts = new HashSet<>();
+    private final RedisCacheService redisCacheService;
 
     @Autowired
-    public NotificationService(TelegramLongPollingBot bot) {
+    public NotificationService(TelegramLongPollingBot bot, RedisCacheService redisCacheService) {
         this.bot = bot;
+        this.redisCacheService = redisCacheService;
     }
 
     public void sendPostToUser(Long chatID, RedditPostDTO post) {
-        if (sentPosts.contains(post.getId())) {
+        if (redisCacheService.wasSent(post.getId())) {
             return;
         }
 
@@ -36,19 +38,17 @@ public class NotificationService {
                 sendTextMessage(chatID, message);
             }
 
-            sentPosts.add(post.getId());
+            redisCacheService.markAsSent(post.getId());
+            log.info("Пост {} отправлен человеку {}", post.getId(), chatID);
 
-            // Ограничиваем размер кэша
-            if (sentPosts.size() > 1000) {
-                sentPosts.clear();
-            }
-
-        } catch (Exception e) {
-            // пробуем отправить просто текстом
+        } catch (TelegramApiException e) {
+            log.error("Не удалось отправить пост {} человеку {}", post.getId(), chatID);
             try {
                 sendTextMessage(chatID, post.getFormattedMessage());
+                redisCacheService.markAsSent(post.getId());
+                log.info("Пост {} отправлен человеку {} простым текстом", post.getId(), chatID);
             } catch (TelegramApiException ex) {
-                ex.printStackTrace();
+                log.error("Не удалось отправить ни обычный, ни текстовый пост {} человеку {}", post.getId(), chatID);
             }
         }
     }
@@ -96,8 +96,7 @@ public class NotificationService {
     }
 
     public void clearCache() {
-        sentPosts.clear();
+        redisCacheService.clearSentPostsCache();
+        log.info("Отправленные посты почищены из кэша");
     }
-
-
 }

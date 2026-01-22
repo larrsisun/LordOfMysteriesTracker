@@ -2,6 +2,7 @@ package TelegramBot.LordOfMysteriesTracker.bot.commands;
 
 import TelegramBot.LordOfMysteriesTracker.model.FilterType;
 import TelegramBot.LordOfMysteriesTracker.services.SubscriptionService;
+import TelegramBot.LordOfMysteriesTracker.util.BotExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -125,8 +126,7 @@ public class FilterCommand implements Command {
             response.setText("Фильтры обновлены!");
 
         } catch (Exception e) {
-            response.setText("Не удалось обновить фильтры, попробуйте ещё раз!");
-            e.getMessage();
+            BotExceptionHandler.handleException(e, chatID, response);
         }
 
     }
@@ -176,7 +176,7 @@ public class FilterCommand implements Command {
             response.setText(result.toString());
             response.setParseMode("Markdown");
         } catch (Exception e) {
-            response.setText("Ошибка при обновлении фильтров: " + e.getMessage());
+            BotExceptionHandler.handleException(e, chatID, response);
         }
     }
 
@@ -189,7 +189,7 @@ public class FilterCommand implements Command {
             response.setText("Все фильтры сброшены!\n" +
                     "Теперь вы будете получать все типы контента.");
         } catch (Exception e) {
-            response.setText("Ошибка при сбросе фильтров: " + e.getMessage());
+            BotExceptionHandler.handleException(e, chatID, response);
         }
     }
 

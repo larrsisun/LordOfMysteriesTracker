@@ -6,6 +6,7 @@ import TelegramBot.LordOfMysteriesTracker.services.NotificationService;
 import TelegramBot.LordOfMysteriesTracker.services.RedditService;
 import TelegramBot.LordOfMysteriesTracker.services.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,8 @@ import java.util.List;
 @Component
 public class RedditCheckSchedule {
 
-    private static final String SUBREDDIT = "LordOfTheMysteries";
+    @Value("${reddit.target.subreddit}")
+    private static final String SUBREDDIT = "";
 
     @Autowired
     private SubscriptionService subscriptionService;
@@ -46,12 +48,6 @@ public class RedditCheckSchedule {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Scheduled(cron = "0 0 3 * * ?") // Каждый день в 3:00
-    public void clearCache() {
-        notificationService.clearCache();
-        System.out.println("Кэш отправленных постов очищен");
     }
 
 }

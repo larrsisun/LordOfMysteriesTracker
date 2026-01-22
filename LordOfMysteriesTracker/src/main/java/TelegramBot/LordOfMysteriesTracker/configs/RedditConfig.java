@@ -31,7 +31,19 @@ public class RedditConfig {
     @Bean
     public RedditClient redditClient() {
 
-        String ourDeviceId = (deviceId != null && !deviceId.isEmpty()) ? deviceId : UUID.randomUUID().toString();
+        UUID ourDeviceId;
+
+        if ((deviceId != null && !deviceId.trim().isEmpty())) {
+            try {
+                ourDeviceId = UUID.fromString(deviceId);
+            } catch (IllegalArgumentException e) {
+                log.warn("Неправильный UUID в конфигурации. Будет сгенерирован новый.");
+                ourDeviceId = UUID.randomUUID();
+            }
+        } else {
+            ourDeviceId = UUID.randomUUID();
+            log.info("Никакого девайс айди не нашли, сгенерирован новый: {}", ourDeviceId);
+        }
 
         UserAgent userAgent = new UserAgent("bot", "com.lotmtracker", "1.0.0", "u/larrsirae");
 

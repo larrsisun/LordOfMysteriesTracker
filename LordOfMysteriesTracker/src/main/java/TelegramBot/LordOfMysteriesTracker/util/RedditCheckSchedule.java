@@ -16,7 +16,7 @@ import java.util.List;
 public class RedditCheckSchedule {
 
     @Value("${reddit.target.subreddit}")
-    private static final String SUBREDDIT = "";
+    private String SUBREDDIT;
 
     @Autowired
     private SubscriptionService subscriptionService;

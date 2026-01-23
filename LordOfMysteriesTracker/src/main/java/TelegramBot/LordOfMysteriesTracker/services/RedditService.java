@@ -7,35 +7,46 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.SubredditSort;
 import net.dean.jraw.pagination.DefaultPaginator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
 public class RedditService {
 
+    private final Logger log = LoggerFactory.getLogger(RedditService.class);
+
     private final RedditClient redditClient;
-    private final Map<String, Instant> lastPostTime = new ConcurrentHashMap<>();
+    private final RedisCacheService cacheService;
     private final RedditRateLimiterService rateLimiter;
 
+    private final int FETCH_LIMIT = 25;
+
     @Autowired
-    public RedditService(RedditClient redditClient, RedditRateLimiterService rateLimiter) {
+    public RedditService(RedditClient redditClient, RedisCacheService cacheService, RedditRateLimiterService rateLimiter) {
         this.redditClient = redditClient;
+        this.cacheService = cacheService;
         this.rateLimiter = rateLimiter;
     }
 
     public List<RedditPostDTO> getNewFilteredPosts(String subreddit, Set<FilterType> userFilters) {
+        log.debug("Получение отфильтрованных постов из сабреддита с фильтрами {}", userFilters);
 
         List<RedditPostDTO> newPosts = getNewPosts(subreddit);
 
+        if (newPosts.isEmpty()) {
+            log.debug("Новых постов не найдено");
+            return Collections.emptyList();
+        }
+
         if (userFilters.contains(FilterType.ALL) || userFilters.isEmpty()) {
+            log.debug("Возвращаем все {} постов с фильтром ALL.", newPosts.size());
             return newPosts;
         }
 
@@ -49,35 +60,38 @@ public class RedditService {
     }
 
     public List<RedditPostDTO> getNewPosts(String subreddit) {
-        List<RedditPostDTO> posts = getPostsFromReddit(subreddit, 10);
-        Instant lastCheck = lastPostTime.getOrDefault(subreddit, Instant.now().minusSeconds(3600));
+        log.info("Получение новых постов из сабреддита.");
+        try {
+            List<RedditPostDTO> posts = getPostsFromReddit(subreddit, FETCH_LIMIT);
 
-        List<RedditPostDTO> newPosts = posts.stream().filter(post -> post.getCreatedAt().isAfter(lastCheck))
-                .toList();
+            if (posts.isEmpty()) {
+                log.info("Не удалось получить новые посты.");
+                return Collections.emptyList();
+            }
+            List<RedditPostDTO> newPosts = posts.stream().filter(post -> !cacheService.wasSent(post.getId()))
+                    .toList();
+            log.info("Найдено {} новых постов из {}", newPosts.size(), posts.size());
+            return newPosts;
 
-        if (!posts.isEmpty()) {
-            Instant newPostTime = posts.getFirst().getCreatedAt();
-            lastPostTime.put(subreddit, newPostTime);
+        } catch (Exception e) {
+            log.error("Ошибка при получении новых постов.");
+            return Collections.emptyList();
         }
-
-        return newPosts;
     }
 
-
-
     private List<RedditPostDTO> getPostsFromReddit(String subreddit, int limit) {
-
+        log.debug("Запрос к Reddit API: r/{}, лимит={}", subreddit, limit);
         try {
             rateLimiter.waitForRateLimit();
             DefaultPaginator<Submission> paginator = redditClient.subreddit(subreddit)
                     .posts().sorting(SubredditSort.NEW).limit(limit).build();
 
             List<Submission> submission = paginator.next();
-
+            log.debug("Получено {} постов из Reddit API", submission.size());
             return submission.stream().map(this::convertToDTO).collect(Collectors.toList());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Ошибка при обращении к Reddit API для r/{}", subreddit, e);
             return Collections.emptyList();
         }
 

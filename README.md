@@ -1,21 +1,22 @@
 # Lord of Mysteries Reddit Tracker Bot (in process, readme only for now)
 
 A Telegram notification bot that helps the international fan community of
-the novel *Lord of the Mysteries* stay updated with new content on r/lordofmysteries.
+the novel *Lord of the Mysteries* stay updated with new content on r/LordOfTheMysteries.
 
 ## Purpose
-- **Read-only monitoring** of new posts in r/lordofmysteries
+- **Read-only monitoring** of new posts in r/LordOfTheMysteries
 - Sending filtered updates (fan translations, fan art, discussions) to subscribed users via Telegram
 - **No posting, commenting, or any write operations** on Reddit
 - Helping fans stay updated without constantly checking the subreddit manually
 
 ## Technology Stack
-- **Java 17** with **Spring Boot 3.x**
+- **Java 17** with **Spring Boot**
 - **Reddit API** (via JRAW library) - read-only access only
 - **Telegram Bot API** (via telegrambots-spring-boot-starter)
-- **MySQL** (planned) for storing user subscriptions
-- **Redis** (planned) for caching and rate limiting
+- **MySQL** for storing user subscriptions
+- **Redis** for caching and rate limiting
 - **Docker** containerization (planned)
+- **RabbitMQ* (planned)
 
 ## Security & API Usage Compliance
 - **Reddit API**: Will use proper OAuth2 authentication and respect all rate limits
@@ -27,7 +28,7 @@ the novel *Lord of the Mysteries* stay updated with new content on r/lordofmyste
 ## Planned Features
 1. Users can subscribe/unsubscribe via Telegram commands
 2. Filter posts by flair (fanart, translation, discussion)
-3. Scheduled checks for new content (every 5-10 minutes)
+3. Scheduled checks for new content (every 5-10/30 minutes)
 4. Smart notifications with post summaries
 
 ## Why This Project is API-Friendly
@@ -45,5 +46,5 @@ the novel *Lord of the Mysteries* stay updated with new content on r/lordofmyste
 - Operate in any subreddit besides r/lordofmysteries
 
 ## Links
-- **Subreddit**: https://www.reddit.com/r/lordofthemysteries/
+- **Subreddit**: https://www.reddit.com/r/LordOfTheMysteries
 - **Telegram Bot**: @LordOfMysteriesTracker_bot (when deployed)

@@ -23,10 +23,12 @@ public class RedditService {
 
     private final RedditClient redditClient;
     private final Map<String, Instant> lastPostTime = new ConcurrentHashMap<>();
+    private final RedditRateLimiterService rateLimiter;
 
     @Autowired
-    public RedditService(RedditClient redditClient) {
+    public RedditService(RedditClient redditClient, RedditRateLimiterService rateLimiter) {
         this.redditClient = redditClient;
+        this.rateLimiter = rateLimiter;
     }
 
     public List<RedditPostDTO> getNewFilteredPosts(String subreddit, Set<FilterType> userFilters) {
@@ -66,6 +68,7 @@ public class RedditService {
     private List<RedditPostDTO> getPostsFromReddit(String subreddit, int limit) {
 
         try {
+            rateLimiter.waitForRateLimit();
             DefaultPaginator<Submission> paginator = redditClient.subreddit(subreddit)
                     .posts().sorting(SubredditSort.NEW).limit(limit).build();
 
@@ -86,7 +89,7 @@ public class RedditService {
         redditPostDTO.setId(submission.getId());
         redditPostDTO.setTitle(submission.getTitle());
         redditPostDTO.setAuthor(submission.getAuthor());
-        redditPostDTO.setFlair(submission.getAuthorFlairText());
+        redditPostDTO.setFlair(submission.getLinkFlairText());
         redditPostDTO.setUrl(submission.getUrl());
         redditPostDTO.setPermalink(submission.getPermalink());
         redditPostDTO.setCreatedAt(submission.getCreated().toInstant());
